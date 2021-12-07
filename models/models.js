@@ -12,15 +12,68 @@ const UserSchema = mongoose.Schema({
 });
 const User = mongoose.model("user", UserSchema);
 
-exports.userTojson = (user, isLog = false) => {
-  return isLog
-    ? {
+exports.userTojson = (user, isLog) => {
+  switch (isLog) {
+    case "FILTERED":
+      return {
+        id: user._id.toString(),
+        username: user.username,
+        from: user.from,
+        to: user.to,
+        count: user.count,
+        log: user.log,
+      };
+    case "LOGS": {
+      return {
         id: user._id.toString(),
         username: user.username,
         count: user.count,
         log: user.log,
+      };
+    }
+    default: {
+      return {
+        id: user._id.toString(),
+        username: user.username,
+      };
+    }
+  }
+};
+
+exports.filterLog = (limit, from, to, user) => {
+  user.from = "";
+  user.to = "";
+  if (!isNaN(from) && !isNaN(to)) {
+    if (to >= from) {
+      const newLog = [];
+      let newCount = 0;
+      for (let index = 0; index < user.log.length; index++) {
+        const exercise = user.log[index];
+        const date = new Date(exercise.date);
+        if (date >= from && date <= to) {
+          newCount++;
+          newLog.push(exercise);
+        }
       }
-    : { username: user.username, _id: user._id.toString() };
+      user.log = newLog;
+      user.count = newCount;
+      user.from = from.toDateString();
+      user.to = to.toDateString();
+    }
+  }
+  if (!isNaN(limit) && limit > 0) {
+    const newLog = [];
+    let newCount = 0;
+    const min = limit > user.log.length ? user.log.length : limit;
+    for (let index = 0; index < min; index++) {
+      const exercise = user.log[index];
+      newLog.push(exercise);
+      newCount++;
+    }
+    user.log = newLog;
+    user.count = newCount;
+  }
+  return user;
 };
 exports.getUser = async (id) => {
   var query = { _id: id };

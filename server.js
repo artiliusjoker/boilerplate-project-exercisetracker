@@ -46,7 +46,18 @@ app.get("/api/users/:id/logs", async (req, res) => {
     return;
   }
   const user = await service.getUser(_id);
-  res.json(service.userTojson(user, true));
+  const isLimit = req.query.limit !== undefined;
+  const isFromTo = req.query.from !== undefined && req.query.to !== undefined;
+  if (isLimit || isFromTo) {
+    const startDate = new Date(req.query.from);
+    const endDate = new Date(req.query.to);
+    const limit = Number(req.query.limit);
+    const userFiltered = user;
+    service.filterLog(limit, startDate, endDate, userFiltered);
+    res.json(service.userTojson(userFiltered, "FILTERED"));
+    return;
+  }
+  res.json(service.userTojson(user, "LOGS"));
 });
 
 app.post("/api/users/:_id/exercises", async (req, res) => {
