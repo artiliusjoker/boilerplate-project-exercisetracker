@@ -16,7 +16,7 @@ exports.userTojson = (user, isLog) => {
   switch (isLog) {
     case "FILTERED":
       return {
-        id: user._id.toString(),
+        _id: user._id.toString(),
         username: user.username,
         from: user.from,
         to: user.to,
@@ -25,7 +25,7 @@ exports.userTojson = (user, isLog) => {
       };
     case "LOGS": {
       return {
-        id: user._id.toString(),
+        _id: user._id.toString(),
         username: user.username,
         count: user.count,
         log: user.log,
@@ -33,7 +33,7 @@ exports.userTojson = (user, isLog) => {
     }
     default: {
       return {
-        id: user._id.toString(),
+        _id: user._id.toString(),
         username: user.username,
       };
     }
